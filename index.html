@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dice Game</title>
+    <style>
+        /* CSS Styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            text-align: center;
+            padding: 30px;
+            border-radius: 10px;
+            background-color: #fff;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+
+        #diceResult img {
+            width: 100px;
+            height: 100px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #score {
+            margin-top: 20px;
+            font-size: 20px;
+        }
+
+        #gameHistory {
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        #gameHistory ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        #gameHistory li {
+            background-color: #f1f1f1;
+            margin: 5px 0;
+            padding: 5px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Dice Game</h1>
+        <div id="diceResult">
+            <img src="dice1.png" alt="Dice" id="diceImg">
+        </div>
+        <button id="rollButton">Roll Dice</button>
+        <div id="score">
+            <p>Your Score: <span id="scoreValue">0</span></p>
+        </div>
+        <div id="gameHistory">
+            <h2>Game History</h2>
+            <ul id="historyList"></ul>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript Code for Dice Game
+        document.getElementById("rollButton").addEventListener("click", rollDice);
+
+        let score = 0;
+
+        function rollDice() {
+            const diceRoll = Math.floor(Math.random() * 6) + 1; // Get random dice number between 1-6
+            const diceImage = document.getElementById("diceImg");
+            diceImage.src = `dice${diceRoll}.png`; // Change dice image based on the roll
+
+            score += diceRoll; // Add the dice roll to the score
+            document.getElementById("scoreValue").textContent = score;
+
+            // Update game history
+            const historyItem = document.createElement("li");
+            historyItem.textContent = `You rolled a ${diceRoll}`;
+            document.getElementById("historyList").appendChild(historyItem);
+
+            // Send score to the backend (PHP)
+            saveScore(score);
+        }
+
+        function saveScore(score) {
+            fetch('save_score.php', {  // You need to run PHP on a server for this to work
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ score: score })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Score saved:', data);
+            })
+            .catch(error => {
+                console.error('Error saving score:', error);
+            });
+        }
+    </script>
+</body>
+</html>
